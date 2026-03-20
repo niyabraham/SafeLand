@@ -118,7 +118,7 @@ function AnimatedNumber({ value }: { value: number }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {value.toFixed(1)}
+      {(value || 0).toFixed(1)}
     </motion.span>
   );
 }
@@ -298,8 +298,8 @@ export function RiskDashboard({ data, isOpen, onClose }: RiskDashboardProps) {
 
               {/* Location Info */}
               <LocationInfo 
-                latitude={location.latitude} 
-                longitude={location.longitude} 
+                latitude={location.lat || 0} 
+                longitude={location.lon || 0} 
               />
 
               {/* Environmental Data Grid */}

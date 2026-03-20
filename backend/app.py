@@ -132,13 +132,11 @@ def predict():
     return jsonify({
         "location": {"latitude": lat, "longitude": lon},
         "environmental_data": {
-            "elevation": elevation,
-            "slope": slope,
-            "ksdma_zone": ksdma_zone,
-            "river_distance_km": round(river_distance, 2),
-            "drainage_density": round(drainage_density, 3),
-            "annual_rainfall_mm": annual_rainfall,
-            "extreme_rain_events": extreme_rain
+            "rainfall": annual_rainfall,                        # Renamed for UI
+            "elevation": elevation,                             # Matches UI
+            "soil_moisture": round(drainage_density * 100, 2),  # Proxy data mapped to UI
+            "water_level": extreme_rain,                        # Proxy data mapped to UI
+            "river_distance": round(river_distance, 2)          # Renamed for UI
         },
         "historical_floods": {
             "2018": bool(flooded_2018),

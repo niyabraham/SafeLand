@@ -33,7 +33,7 @@ function App() {
     setIsDashboardOpen(false);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/predict-by-location`, {
+      const response = await fetch(`${API_BASE_URL}/predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,30 +59,16 @@ function App() {
     } catch (error) {
       console.error('Error fetching prediction:', error);
       
-      // For demo purposes, generate mock data if API is unavailable
-      const mockRisk: FloodRiskLevel = ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)] as FloodRiskLevel;
-      const mockData: PredictionResponse = {
-        location: {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        },
-        environmental_data: {
-          rainfall: Math.random() * 150,
-          elevation: Math.random() * 500,
-          soil_moisture: Math.random() * 100,
-          water_level: Math.random() * 10,
-          river_distance: Math.random() * 50,
-        },
-        flood_risk: mockRisk,
-      };
-      
-      setPredictionData(mockData);
-      setRiskLevel(mockRisk);
-      setIsDashboardOpen(true);
-      
-      toast.info('Using demo mode - API unavailable', {
-        description: `Flood risk level: ${mockRisk}`,
+      // Remove the mock data generation and show an actual error to the user
+      toast.error('Analysis Failed', {
+        description: 'Could not connect to the SafeLand prediction server. Please try again later.',
       });
+      
+      // Ensure the dashboard doesn't open with empty/fake data
+      setPredictionData(null);
+      setRiskLevel(null);
+      setIsDashboardOpen(false);
+      
     } finally {
       setIsLoading(false);
     }
@@ -211,7 +197,7 @@ function App() {
               ))}
               
               <motion.a
-                href="https://github.com"
+                href="https://github.com/niyabraham/SafeLand"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
@@ -491,7 +477,7 @@ function App() {
             {/* Social */}
             <div className="flex items-center gap-3">
               <motion.a
-                href="https://github.com"
+                href="https://github.com/niyabraham/SafeLand" // Updated to your repo
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
@@ -500,21 +486,13 @@ function App() {
               >
                 <Github className="w-4 h-4" />
               </motion.a>
-              <motion.a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Twitter className="w-4 h-4" />
-              </motion.a>
+              {/* You can remove the Twitter button here if you don't have a project Twitter account, or update its href */}
             </div>
           </div>
 
           <div className="mt-8 pt-8 border-t border-slate-800/50 text-center text-sm text-slate-500">
-            <p>© 2024 SafeLand. All rights reserved. Built with React, Tailwind CSS & Framer Motion.</p>
+            {/* Updated the year dynamically */}
+            <p>© {new Date().getFullYear()} SafeLand. All rights reserved. Built with React, Tailwind CSS & Framer Motion.</p>
           </div>
         </div>
       </footer>

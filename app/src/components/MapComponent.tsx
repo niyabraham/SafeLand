@@ -128,13 +128,17 @@ export function MapComponent({
   riskLevel,
   isLoading,
   onLocationSelect,
-  defaultCenter = [20.5937, 78.9629], // Center of India
-  defaultZoom = 5,
+  defaultCenter = [10.8505, 76.2711], // Center of India
+  defaultZoom = 7,
 }: MapComponentProps) {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  // Add these bounds for Kerala/Southern India
+  const keralaBounds: L.LatLngBoundsExpression = [
+    [8.0, 74.5], // Southwest coordinates
+    [13.0, 77.5] // Northeast coordinates
+  ];
   const handleMapClick = useCallback((lat: number, lng: number) => {
     onLocationSelect({ latitude: lat, longitude: lng });
   }, [onLocationSelect]);
@@ -184,6 +188,9 @@ export function MapComponent({
         ref={mapRef}
         zoomControl={false}
         attributionControl={true}
+        maxBounds={keralaBounds}     // Prevents panning outside Kerala
+        maxBoundsViscosity={1.0}     // Makes the bounds feel solid
+        minZoom={6}
       >
         {/* Dark themed map tiles - CartoDB Dark Matter */}
         <TileLayer
