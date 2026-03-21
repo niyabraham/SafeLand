@@ -6,9 +6,10 @@ import {
   Map as MapIcon, 
   Info,
   Github,
-  Twitter,
   Menu,
-  X
+  X,
+  Home,
+  FileText
 } from 'lucide-react';
 import { MapComponent } from '@/components/MapComponent';
 import { RiskDashboard } from '@/components/RiskDashboard';
@@ -54,17 +55,15 @@ function App() {
       setIsDashboardOpen(true);
       
       toast.success('Risk assessment complete!', {
-        description: `Flood risk level: ${data.flood_risk}`,
+        description: `Construction Suitability: ${data.flood_risk === 'Low' ? 'Suitable' : data.flood_risk === 'Medium' ? 'Conditional' : 'Avoid'}`,
       });
     } catch (error) {
       console.error('Error fetching prediction:', error);
       
-      // Remove the mock data generation and show an actual error to the user
       toast.error('Analysis Failed', {
         description: 'Could not connect to the SafeLand prediction server. Please try again later.',
       });
       
-      // Ensure the dashboard doesn't open with empty/fake data
       setPredictionData(null);
       setRiskLevel(null);
       setIsDashboardOpen(false);
@@ -82,17 +81,15 @@ function App() {
   // Navigation items
   const navItems = [
     { label: 'Map', icon: MapIcon, href: '#map' },
-    { label: 'About', icon: Info, href: '#about' },
+    { label: 'How It Works', icon: Info, href: '#about' },
   ];
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-200 overflow-x-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800/50 to-slate-900" />
         
-        {/* Animated flow lines */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(8)].map((_, i) => (
             <motion.div
@@ -117,7 +114,6 @@ function App() {
           ))}
         </div>
 
-        {/* Floating particles */}
         <div className="absolute inset-0">
           {[...Array(20)].map((_, i) => (
             <motion.div
@@ -159,14 +155,8 @@ function App() {
               <div className="relative w-10 h-10">
                 <motion.div
                   className="absolute inset-0 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500"
-                  animate={{
-                    rotate: [0, 360],
-                  }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                   style={{ borderRadius: '12px' }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -177,7 +167,7 @@ function App() {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">
                   SafeLand
                 </h1>
-                <p className="text-xs text-slate-400 -mt-1">Flood Risk Assessment</p>
+                <p className="text-xs text-slate-400 -mt-1">Land Safety Check</p>
               </div>
             </motion.div>
 
@@ -214,11 +204,7 @@ function App() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               whileTap={{ scale: 0.95 }}
             >
-              {isMobileMenuOpen ? (
-                <X className="w-5 h-5 text-slate-300" />
-              ) : (
-                <Menu className="w-5 h-5 text-slate-300" />
-              )}
+              {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-300" /> : <Menu className="w-5 h-5 text-slate-300" />}
             </motion.button>
           </div>
         </div>
@@ -252,41 +238,37 @@ function App() {
 
       {/* Main Content */}
       <main className="relative z-10 pt-16">
-        {/* Hero Section */}
+        
+        {/* Hero Section - UPDATED COPY */}
         <section className="min-h-[40vh] flex items-center justify-center px-4 py-16">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
             >
-              {/* Badge */}
               <motion.div
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <Shield className="w-4 h-4 text-sky-400" />
-                <span className="text-sm text-slate-300">AI-Powered Risk Assessment</span>
+                <Home className="w-4 h-4 text-sky-400" />
+                <span className="text-sm text-slate-300">Land Safety Assessment for Homeowners</span>
               </motion.div>
 
-              {/* Title */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-                <span className="text-slate-100">Protect Your</span>{' '}
-                <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                  Community
+                <span className="text-slate-100">Is Your Dream Plot </span>{' '}
+                <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent block mt-2">
+                  Safe to Build On?
                 </span>
               </h1>
 
-              {/* Description */}
               <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-                SafeLand uses advanced machine learning to analyze environmental data 
-                and predict flood risks. Click anywhere on the map to get instant 
-                risk assessments for any location.
+                Before you build your home, know the land. SafeLand checks any location in Kerala 
+                for flood history, elevation, and drainage so you can make the right choice for your family.
               </p>
 
-              {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <motion.a
                   href="#map"
@@ -295,7 +277,7 @@ function App() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <MapIcon className="w-5 h-5" />
-                  Explore the Map
+                  Check a Location
                 </motion.a>
                 
                 <motion.a
@@ -305,7 +287,7 @@ function App() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Info className="w-5 h-5" />
-                  Learn More
+                  How It Works
                 </motion.a>
               </div>
             </motion.div>
@@ -322,15 +304,12 @@ function App() {
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              {/* Map Container */}
               <MapComponent
                 selectedLocation={selectedLocation}
                 riskLevel={riskLevel}
                 isLoading={isLoading}
                 onLocationSelect={handleLocationSelect}
               />
-
-              {/* Risk Dashboard Overlay */}
               <RiskDashboard
                 data={predictionData}
                 isOpen={isDashboardOpen}
@@ -338,31 +317,31 @@ function App() {
               />
             </motion.div>
 
-            {/* Map Instructions */}
+            {/* Map Instructions / Legend - UPDATED */}
             <motion.div
-              className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-slate-400"
+              className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-300 font-medium"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span>Low Risk</span>
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                <span>Suitable for Construction</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-amber-500" />
-                <span>Medium Risk</span>
+                <div className="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                <span>Conditional (Mitigation Required)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-rose-600" />
-                <span>High Risk</span>
+                <div className="w-3 h-3 rounded-full bg-rose-600 shadow-[0_0_10px_rgba(225,29,72,0.5)]" />
+                <span>Not Recommended</span>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features Section - UPDATED COPY */}
         <section id="about" className="px-4 py-24">
           <div className="max-w-7xl mx-auto">
             <motion.div
@@ -375,8 +354,8 @@ function App() {
                 How SafeLand Works
               </h2>
               <p className="text-slate-400 max-w-2xl mx-auto">
-                Our AI-powered platform analyzes multiple environmental factors 
-                to provide accurate flood risk assessments in real-time.
+                We combine Kerala's historical flood data with real-time environmental 
+                factors to give you a clear, actionable construction verdict.
               </p>
             </motion.div>
 
@@ -384,20 +363,20 @@ function App() {
               {[
                 {
                   icon: MapIcon,
-                  title: 'Select Location',
-                  description: 'Click anywhere on the interactive map to select a location for risk assessment.',
+                  title: 'Find Your Plot',
+                  description: 'Click anywhere on the interactive map of Kerala to drop a pin exactly where you plan to build.',
                   color: 'from-sky-400 to-blue-500',
                 },
                 {
                   icon: Droplets,
-                  title: 'Analyze Data',
-                  description: 'Our system analyzes rainfall, elevation, soil moisture, and water levels.',
+                  title: 'We Check What Matters',
+                  description: 'Our system analyzes the plot\'s elevation, drainage density, nearest river distance, and historical flood exposure.',
                   color: 'from-indigo-400 to-purple-500',
                 },
                 {
-                  icon: Shield,
-                  title: 'Get Results',
-                  description: 'Receive instant flood risk ratings with personalized safety recommendations.',
+                  icon: FileText,
+                  title: 'Know Before You Build',
+                  description: 'Receive an instant Site Report with a clear construction verdict and specific guidelines for your builder.',
                   color: 'from-emerald-400 to-teal-500',
                 },
               ].map((feature, index) => (
@@ -424,16 +403,16 @@ function App() {
           </div>
         </section>
 
-        {/* Stats Section */}
+        {/* Stats Section - UPDATED COPY */}
         <section className="px-4 py-16">
           <div className="max-w-7xl mx-auto">
             <div className="glass rounded-3xl p-8 lg:p-12">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                  { value: '99%', label: 'Accuracy Rate' },
-                  { value: '50K+', label: 'Locations Analyzed' },
-                  { value: '24/7', label: 'Real-time Monitoring' },
-                  { value: '<2s', label: 'Response Time' },
+                  { value: '99%', label: 'Model Accuracy' },
+                  { value: 'Every', label: 'Corner of Kerala' },
+                  { value: '2018-21', label: 'Floods Mapped' },
+                  { value: 'Instant', label: 'Answer for your plot' },
                 ].map((stat, index) => (
                   <motion.div
                     key={stat.label}
@@ -459,7 +438,6 @@ function App() {
       <footer className="relative z-10 border-t border-slate-800/50 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Logo */}
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
                 <Droplets className="w-4 h-4 text-white" />
@@ -467,17 +445,15 @@ function App() {
               <span className="font-bold text-slate-100">SafeLand</span>
             </div>
 
-            {/* Links */}
             <div className="flex items-center gap-6 text-sm text-slate-400">
               <a href="#" className="hover:text-slate-200 transition-colors">Privacy</a>
               <a href="#" className="hover:text-slate-200 transition-colors">Terms</a>
               <a href="#" className="hover:text-slate-200 transition-colors">Contact</a>
             </div>
 
-            {/* Social */}
             <div className="flex items-center gap-3">
               <motion.a
-                href="https://github.com/niyabraham/SafeLand" // Updated to your repo
+                href="https://github.com/niyabraham/SafeLand"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
@@ -486,12 +462,10 @@ function App() {
               >
                 <Github className="w-4 h-4" />
               </motion.a>
-              {/* You can remove the Twitter button here if you don't have a project Twitter account, or update its href */}
             </div>
           </div>
 
           <div className="mt-8 pt-8 border-t border-slate-800/50 text-center text-sm text-slate-500">
-            {/* Updated the year dynamically */}
             <p>© {new Date().getFullYear()} SafeLand. All rights reserved. Built with React, Tailwind CSS & Framer Motion.</p>
           </div>
         </div>

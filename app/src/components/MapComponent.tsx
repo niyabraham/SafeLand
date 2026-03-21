@@ -71,13 +71,15 @@ interface Ripple {
 interface MapClickHandlerProps {
   onMapClick: (lat: number, lng: number) => void;
   onRipple: (ripple: Ripple) => void;
+  onInteract: () => void;
 }
 
-function MapClickHandler({ onMapClick, onRipple }: MapClickHandlerProps) {
+function MapClickHandler({ onMapClick, onRipple, onInteract }: MapClickHandlerProps) {
   const map = useMap();
   
   useMapEvents({
     click: (e) => {
+      onInteract();
       const { lat, lng } = e.latlng;
       
       // Create ripple effect at click position
@@ -90,6 +92,8 @@ function MapClickHandler({ onMapClick, onRipple }: MapClickHandlerProps) {
       
       onMapClick(lat, lng);
     },
+    zoomstart: () => onInteract(), 
+    dragstart: () => onInteract(),
   });
   
   return null;
@@ -128,20 +132,27 @@ export function MapComponent({
   riskLevel,
   isLoading,
   onLocationSelect,
-  defaultCenter = [10.8505, 76.2711], // Center of India
+  defaultCenter = [10.8505, 76.2711], // Center of Kerala
   defaultZoom = 7,
 }: MapComponentProps) {
   const [ripples, setRipples] = useState<Ripple[]>([]);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  // Add these bounds for Kerala/Southern India
+  
+  // Bounds for Kerala/Southern India
   const keralaBounds: L.LatLngBoundsExpression = [
     [8.0, 74.5], // Southwest coordinates
     [13.0, 77.5] // Northeast coordinates
   ];
+  
   const handleMapClick = useCallback((lat: number, lng: number) => {
     onLocationSelect({ latitude: lat, longitude: lng });
   }, [onLocationSelect]);
+
+  const handleInteract = useCallback(() => {
+    setHasInteracted(true);
+  }, []);
 
   const handleRipple = useCallback((ripple: Ripple) => {
     setRipples((prev) => [...prev, ripple]);
@@ -188,11 +199,10 @@ export function MapComponent({
         ref={mapRef}
         zoomControl={false}
         attributionControl={true}
-        maxBounds={keralaBounds}     // Prevents panning outside Kerala
-        maxBoundsViscosity={1.0}     // Makes the bounds feel solid
+        maxBounds={keralaBounds}
+        maxBoundsViscosity={1.0}
         minZoom={6}
       >
-        {/* Dark themed map tiles - CartoDB Dark Matter */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -200,14 +210,17 @@ export function MapComponent({
           maxZoom={20}
         />
 
-        {/* Map Controller for view updates */}
         <MapController 
           center={markerPosition || defaultCenter} 
           zoom={selectedLocation ? 12 : defaultZoom} 
         />
 
         {/* Click Handler */}
-        <MapClickHandler onMapClick={handleMapClick} onRipple={handleRipple} />
+        <MapClickHandler 
+          onMapClick={handleMapClick} 
+          onRipple={handleRipple} 
+          onInteract={handleInteract}
+        />
 
         {/* Location Marker */}
         <AnimatePresence>
@@ -217,7 +230,6 @@ export function MapComponent({
               icon={createRiskIcon(riskLevel, isLoading)}
               eventHandlers={{
                 add: (e) => {
-                  // Animate marker drop
                   const marker = e.target.getElement();
                   if (marker) {
                     marker.style.transformOrigin = 'bottom center';
@@ -282,32 +294,35 @@ export function MapComponent({
         </AnimatePresence>
       </div>
 
-      {/* Click Instruction Overlay */}
-      {!selectedLocation && (
-        <motion.div
-          className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className="glass-strong px-6 py-4 rounded-2xl text-center">
-            <motion.div
-              className="w-12 h-12 mx-auto mb-3 rounded-full bg-sky-500/20 flex items-center justify-center"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                <circle cx="12" cy="9" r="2.5"/>
-              </svg>
-            </motion.div>
-            <p className="text-slate-200 font-medium">Click anywhere on the map</p>
-            <p className="text-slate-400 text-sm mt-1">to assess flood risk</p>
-          </div>
-        </motion.div>
-      )}
+      {/* Click Instruction Overlay - UPDATED TEXT */}
+      <AnimatePresence>
+        {!selectedLocation && !hasInteracted && (
+          <motion.div
+            className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="glass-strong px-6 py-4 rounded-2xl text-center shadow-2xl">
+              <motion.div
+                className="w-12 h-12 mx-auto mb-3 rounded-full bg-sky-500/20 flex items-center justify-center"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                  <circle cx="12" cy="9" r="2.5"/>
+                </svg>
+              </motion.div>
+              <p className="text-slate-200 font-medium">Click any location in Kerala</p>
+              <p className="text-slate-400 text-sm mt-1">to check land safety</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Loading Overlay */}
+      {/* Loading Overlay - UPDATED TEXT */}
       <AnimatePresence>
         {isLoading && (
           <motion.div
@@ -318,7 +333,7 @@ export function MapComponent({
           >
             <div className="glass-strong px-8 py-6 rounded-2xl flex flex-col items-center gap-4">
               <MapLoadingIndicator />
-              <p className="text-slate-300 font-medium">Analyzing location...</p>
+              <p className="text-slate-300 font-medium">Checking land safety...</p>
             </div>
           </motion.div>
         )}
