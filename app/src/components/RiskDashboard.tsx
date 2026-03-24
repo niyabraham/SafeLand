@@ -75,7 +75,7 @@ export function RiskDashboard({ data, isOpen, onClose }: RiskDashboardProps) {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="absolute top-0 right-0 w-full md:w-[450px] h-full bg-slate-900/95 backdrop-blur-xl border-l border-slate-800 shadow-2xl flex flex-col z-50"
+          className="absolute top-0 right-0 w-full md:w-[450px] h-full max-h-screen bg-slate-900/95 backdrop-blur-xl border-l border-slate-800 shadow-2xl flex flex-col z-50"
         >
           {/* SECTION 1: Verdict Banner */}
           <div className={`p-6 border-b border-slate-800 relative overflow-hidden shrink-0`}>
@@ -120,7 +120,7 @@ export function RiskDashboard({ data, isOpen, onClose }: RiskDashboardProps) {
           </div>
 
           {/* Scrollable Content */}
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 min-h-0 overflow-hidden">
             <div className="p-6 space-y-8 pb-8">
               
               {/* SECTION 2: Construction Suitability Score */}

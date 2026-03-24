@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   Home,
-  FileText
+  FileText,
+  Search
 } from 'lucide-react';
 import { MapComponent } from '@/components/MapComponent';
 import { RiskDashboard } from '@/components/RiskDashboard';
@@ -27,9 +28,17 @@ function App() {
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Handle location selection from map
+  // State for manual coordinate inputs
+  const [manualLat, setManualLat] = useState('');
+  const [manualLng, setManualLng] = useState('');
+
+  // Handle location selection (works for BOTH map clicks and manual input)
   const handleLocationSelect = useCallback(async (location: LocationData) => {
     setSelectedLocation(location);
+    // Auto-fill the inputs if clicked from the map
+    setManualLat(location.latitude.toFixed(6));
+    setManualLng(location.longitude.toFixed(6));
+    
     setIsLoading(true);
     setIsDashboardOpen(false);
 
@@ -73,6 +82,25 @@ function App() {
     }
   }, []);
 
+  // Handle manual coordinate form submission
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const lat = parseFloat(manualLat);
+    const lng = parseFloat(manualLng);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      toast.error('Invalid Input', { description: 'Please enter valid numerical coordinates.' });
+      return;
+    }
+
+    // Kerala bounds check (optional but helpful)
+    if (lat < 8.0 || lat > 13.0 || lng < 74.5 || lng > 77.5) {
+      toast.warning('Outside Kerala Bounds', { description: 'These coordinates are outside our standard prediction zone, but we will try anyway!' });
+    }
+
+    handleLocationSelect({ latitude: lat, longitude: lng });
+  };
+
   // Close dashboard
   const handleCloseDashboard = useCallback(() => {
     setIsDashboardOpen(false);
@@ -101,15 +129,8 @@ function App() {
                   i % 2 === 0 ? 'rgba(56, 189, 248, 0.1)' : 'rgba(129, 140, 248, 0.1)'
                 }, transparent)`,
               }}
-              animate={{
-                y: ['-100%', '100%'],
-              }}
-              transition={{
-                duration: 10 + i * 2,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: i * 1.2,
-              }}
+              animate={{ y: ['-100%', '100%'] }}
+              transition={{ duration: 10 + i * 2, repeat: Infinity, ease: 'linear', delay: i * 1.2 }}
             />
           ))}
         </div>
@@ -119,20 +140,9 @@ function App() {
             <motion.div
               key={`particle-${i}`}
               className="absolute w-1 h-1 rounded-full bg-sky-400/30"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0.2, 0.6, 0.2],
-              }}
-              transition={{
-                duration: 4 + Math.random() * 4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: Math.random() * 4,
-              }}
+              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+              animate={{ y: [0, -30, 0], opacity: [0.2, 0.6, 0.2] }}
+              transition={{ duration: 4 + Math.random() * 4, repeat: Infinity, ease: 'easeInOut', delay: Math.random() * 4 }}
             />
           ))}
         </div>
@@ -148,10 +158,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <motion.div 
-              className="flex items-center gap-3"
-              whileHover={{ scale: 1.02 }}
-            >
+            <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
               <div className="relative w-10 h-10">
                 <motion.div
                   className="absolute inset-0 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500"
@@ -239,7 +246,7 @@ function App() {
       {/* Main Content */}
       <main className="relative z-10 pt-16">
         
-        {/* Hero Section - UPDATED COPY */}
+        {/* Hero Section */}
         <section className="min-h-[40vh] flex items-center justify-center px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <motion.div
@@ -294,9 +301,58 @@ function App() {
           </div>
         </section>
 
-        {/* Map Section */}
+        {/* Map & Search Section */}
         <section id="map" className="px-4 py-8">
           <div className="max-w-7xl mx-auto">
+            
+            {/* NEW: Manual Coordinate Input - MOVED OUTSIDE MAP */}
+            <motion.div 
+              className="max-w-3xl mx-auto mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <form
+                onSubmit={handleManualSubmit}
+                className="glass-strong p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-4 border border-slate-700/50"
+              >
+                <div className="flex-1 flex flex-col sm:flex-row gap-4">
+                  <div className="w-full relative">
+                    <label className="absolute -top-2 left-3 bg-slate-800 px-1 text-xs text-slate-400 rounded">Latitude</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="e.g. 10.8505"
+                      value={manualLat}
+                      onChange={(e) => setManualLat(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
+                      required
+                    />
+                  </div>
+                  <div className="w-full relative">
+                    <label className="absolute -top-2 left-3 bg-slate-800 px-1 text-xs text-slate-400 rounded">Longitude</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="e.g. 76.2711"
+                      value={manualLng}
+                      onChange={(e) => setManualLng(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-sky-500/25 transition-all hover:scale-105 active:scale-95"
+                >
+                  <Search className="w-5 h-5 shrink-0" />
+                  <span>Check Plot</span>
+                </button>
+              </form>
+            </motion.div>
+
+            {/* Map Container */}
             <motion.div
               className="relative h-[600px] lg:h-[700px] rounded-3xl overflow-hidden shadow-2xl"
               initial={{ opacity: 0, y: 50 }}
@@ -317,7 +373,7 @@ function App() {
               />
             </motion.div>
 
-            {/* Map Instructions / Legend - UPDATED */}
+            {/* Map Instructions / Legend */}
             <motion.div
               className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-300 font-medium"
               initial={{ opacity: 0 }}
@@ -341,7 +397,7 @@ function App() {
           </div>
         </section>
 
-        {/* Features Section - UPDATED COPY */}
+        {/* Features Section */}
         <section id="about" className="px-4 py-24">
           <div className="max-w-7xl mx-auto">
             <motion.div
@@ -364,7 +420,7 @@ function App() {
                 {
                   icon: MapIcon,
                   title: 'Find Your Plot',
-                  description: 'Click anywhere on the interactive map of Kerala to drop a pin exactly where you plan to build.',
+                  description: 'Click anywhere on the map or enter GPS coordinates to drop a pin exactly where you plan to build.',
                   color: 'from-sky-400 to-blue-500',
                 },
                 {
@@ -403,7 +459,7 @@ function App() {
           </div>
         </section>
 
-        {/* Stats Section - UPDATED COPY */}
+        {/* Stats Section */}
         <section className="px-4 py-16">
           <div className="max-w-7xl mx-auto">
             <div className="glass rounded-3xl p-8 lg:p-12">
