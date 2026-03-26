@@ -16,7 +16,10 @@ from backend.data_sources.osm_processor import osm_processor
 from backend.data_sources.imd_api import imd_api
 from backend.data_sources.sentinel_processor import sentinel_processor
 
-app = Flask(__name__)
+# Serve frontend static files from Vite build output
+app = Flask(__name__,
+    static_folder=os.path.join(os.path.dirname(__file__), "..", "app", "dist"),
+    static_url_path="")
 CORS(app)
 
 # --- CONFIGURATION ---
@@ -156,5 +159,21 @@ def health():
         "features_expected": FEATURE_COLUMNS
     })
 
+@app.route("/", defaults={'path': ''})
+@app.route("/<path:path>")
+def serve_frontend(path):
+    """Serve frontend for client-side routing (all non-API routes)"""
+    # Don't intercept API routes
+    if path in ['predict', 'health'] or path.startswith('api/'):
+        return jsonify({"error": "Not found"}), 404
+    
+    # Serve the frontend index.html for all other routes
+    index_path = os.path.join(app.static_folder, "index.html")
+    if os.path.exists(index_path):
+        return app.send_static_file("index.html")
+    return "Frontend build not found. Run 'npm run build' in the app/ directory.", 404
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.getenv("PORT", 5000))
+    debug_mode = os.getenv("FLASK_DEBUG", "False") == "True"
+    app.run(debug=debug_mode, port=port, host="0.0.0.0")
