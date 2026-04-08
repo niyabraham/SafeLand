@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Droplets, 
-  Shield, 
   Map as MapIcon, 
   Info,
   Github,
