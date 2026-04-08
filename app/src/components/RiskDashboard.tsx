@@ -151,10 +151,30 @@ export function RiskDashboard({ data, isOpen, onClose }: RiskDashboardProps) {
               <section>
                 <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Site Risk Factors</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <FactorCard icon={Droplets} label="Annual Rainfall" value={`${environmental_data.rainfall} mm`} sub="High = drainage needed" />
-                  <FactorCard icon={Mountain} label="Site Elevation" value={`${environmental_data.elevation} m`} sub="Low = flood-prone" />
-                  <FactorCard icon={Route} label="Nearest River" value={`${environmental_data.river_distance} km`} sub="Riparian rules may apply" />
-                  <FactorCard icon={AlertTriangle} label="Drainage Density" value={`${environmental_data.soil_moisture}%`} sub="High = weak soil" />
+                  <FactorCard 
+                    icon={Droplets} 
+                    label="Annual Rainfall" 
+                    value={`${environmental_data.rainfall} mm`} 
+                    sub={environmental_data.rainfall > 3000 ? "High — drainage needed" : environmental_data.rainfall > 2000 ? "Moderate" : "Normal"} 
+                  />
+                  <FactorCard 
+                    icon={Mountain} 
+                    label="Site Elevation" 
+                    value={`${environmental_data.elevation} m`} 
+                    sub={environmental_data.elevation < 15 ? "Low — flood-prone" : environmental_data.elevation < 50 ? "Moderate height" : "Safe height"} 
+                  />
+                  <FactorCard 
+                    icon={Route} 
+                    label="Nearest River" 
+                    value={`${environmental_data.river_distance} km`} 
+                    sub={environmental_data.river_distance < 2 ? "Close — riparian rules may apply" : environmental_data.river_distance < 5 ? "Moderate distance" : "Safe distance"} 
+                  />
+                  <FactorCard 
+                    icon={AlertTriangle} 
+                    label="Drainage Density" 
+                    value={`${environmental_data.soil_moisture}%`} 
+                    sub={environmental_data.soil_moisture > 50 ? "High — weak soil" : environmental_data.soil_moisture > 20 ? "Moderate" : "Stable soil"} 
+                  />
                 </div>
               </section>
 

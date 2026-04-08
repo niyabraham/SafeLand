@@ -1,8 +1,8 @@
 import requests
 
-# Test Coordinates (Kochi, Kerala)
-url = "http://127.0.0.1:5000/predict-by-location"
-payload = {"latitude": 9.9312, "longitude": 76.2673}
+# Test Coordinates (Wayanad, Kerala)
+url = "http://127.0.0.1:5000/predict"
+payload = {"latitude": 11.6, "longitude": 76.1}
 
 try:
     print("Testing backend...")
