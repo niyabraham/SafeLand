@@ -2,7 +2,7 @@ services:
   - type: web
     name: safeland
     runtime: python
-    startCommand: gunicorn --bind 0.0.0.0:$PORT backend.app:app
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --timeout 120 backend.app:app
     envVars:
       - key: FLASK_DEBUG
         value: False
