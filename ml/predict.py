@@ -40,7 +40,14 @@ def predict_risk(latitude, longitude, flooded_2018=0, flooded_2019=0, flooded_20
         "flooded_2018": flooded_2018,
         "flooded_2019": flooded_2019,
         "flooded_2021": flooded_2021,
-        "flood_history_count": flood_history_count
+        "flood_history_count": flood_history_count,
+        "ksdma_zone": 3,
+        "elevation": 50.0,
+        "slope": 0.5,
+        "river_distance": 2.0,
+        "drainage_density": 0.5,
+        "annual_rainfall_mm": 3000.0,
+        "extreme_rain_events": 5
     }])
     
     prediction = model.predict(data)

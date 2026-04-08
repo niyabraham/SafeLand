@@ -36,7 +36,14 @@ for name, lat, lon, f18, f19, f21, count, expected in tests:
         "flooded_2018": f18,
         "flooded_2019": f19,
         "flooded_2021": f21,
-        "flood_history_count": count
+        "flood_history_count": count,
+        "ksdma_zone": 3,
+        "elevation": 50.0,
+        "slope": 0.5,
+        "river_distance": 2.0,
+        "drainage_density": 0.5,
+        "annual_rainfall_mm": 3000.0,
+        "extreme_rain_events": 5
     }])
     
     pred = model.predict(data)[0]
